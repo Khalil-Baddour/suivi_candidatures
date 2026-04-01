@@ -1,0 +1,75 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  text-decoration: inherit;
+}
+
+
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+
+
+table {
+  width: 100%;
+  border-collapse: collapse; /* 👈 indispensable */
+}
+
+thead th {
+  background-color: #f3f4f6; /* gris clair */
+  color: #374151;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px;
+}
+
+/* lignes horizontales uniquement */
+tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+tbody td {
+  padding: 12px;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+.status.SENT { color: #1d4ed8; }
+.status.INTERVIEW { color: #d97706; }
+.status.REJECTED { color: #dc2626; }
+.status.TO_APPLY { color: #7c3aed; }
+.status.NO_RESPONSE { color: #6b7280; }
+
+
+.details-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #2563eb;   /* bleu */
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 9999px;       /* pill shape */
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.details-badge:hover {
+  background-color: #1d4ed8;   /* bleu plus foncé */
+}

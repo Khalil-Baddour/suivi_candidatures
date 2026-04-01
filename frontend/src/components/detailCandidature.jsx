@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 
 import '../assets/styleDetails.css'
-import { createFakeBackend } from "../utils/fakeBackend.js"
 
 function Details({ candidature, onBack }) {
 
@@ -12,24 +11,33 @@ function Details({ candidature, onBack }) {
     TO_APPLY: 'À préparer',
     NO_RESPONSE: 'Sans réponse'
   }
-
-  const backend = useRef(createFakeBackend());
-
+  // Champs à modifier
   const [date, setDate] = useState(candidature.next_action_date);
   const [currentStatus, setCurrentStatus] = useState(candidature.status);
 
 
-
   // Fonction sauvegarde des modif sur détails
-    async function SaveChangesDetails() {
-    await backend.current.updateApplication(candidature.id, {
-        next_action_date: date,
-        status: currentStatus
+  async function SaveChangesDetails() {
+    try{
+      const response = await fetch(`http://localhost:8000/api/applications/${candidature.id}/`,
+        {
+          method : 'PATCH',   // PATCH envoie uniquement les champs modifiés
+          headers : {'Content-Type': 'application/json'},
+          body : JSON.stringify({
+            next_action_date : date,
+            status: currentStatus
+          }),
+        });
+      if (!response.ok){
+        const err = await response.json();
+        throw new Error(JSON.stringify(err));
+      }
+      alert("Modifications sauvegardées");
 
-    });
-    alert("Modifications ont été mises à jour !");
-  }
-
+    } catch (err){
+      alert(`Erreur : ${err.message}`);
+    }
+}
 
   return (
     <>

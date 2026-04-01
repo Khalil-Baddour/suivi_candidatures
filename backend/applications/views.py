@@ -14,6 +14,15 @@ def index(request):
 class ApplicationListCreate(generics.ListCreateAPIView):
     """
     qui gère automatiquement le GET (liste) et le POST (création)
+    envoyer et recevoir les données (en integralité)
+    """
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+
+
+class ApplicationDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    vue pour GET détail + PATCH + PUT + DELETE
     """
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer

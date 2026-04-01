@@ -1,4 +1,7 @@
 import { useState } from "react";
+import '../assets/styleAddApplication.css'
+
+
 
 export default function AddApplication({ onSuccess }) {
   const [company, setCompany] = useState('');
@@ -145,7 +148,7 @@ export default function AddApplication({ onSuccess }) {
       />
 
       <button type="button" onClick={handleSubmit} disabled={isSubmitting}>
-        {isSubmitting ? 'Envoi en cours…' : 'Ajouter la candidature'}
+        {isSubmitting ? 'Envoi en cours…' : 'Valider'}
       </button>
     </div>
   );

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ApplicationListCreate
+from .views import ApplicationListCreate, ApplicationDetail
 
 """
 L'utilité de ce deuxième fichier urls.py est le découpage modulaire qui a pour utilité :
@@ -12,5 +12,7 @@ et ça facilité la maintenance et assure la scalabilité
 
 urlpatterns = [
     path('applications/', ApplicationListCreate.as_view(), name='app-list'),
+    path('applications/<int:pk>/', ApplicationDetail.as_view()),  # avec l'id de la candidature
 ]
+
 

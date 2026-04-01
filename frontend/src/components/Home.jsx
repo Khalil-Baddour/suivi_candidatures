@@ -86,7 +86,17 @@ function ShowApplications({ onSelectApplication }) {
         Ajouter une nouvelle candidature
       </button>
 
-      {showAddApp && <AddApplication onSuccess={handleSuccess} />}
+      {showAddApp && (
+        <div className='modal-overlay' onClick={()=> setShowAddApp(false)}> 
+          <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowAddApp(false)}>X</button>
+            <AddApplication onSuccess={handleSuccess} />
+          </div>
+        </div>
+        
+    
+    
+    )}
     </>
   );
 }

@@ -8,7 +8,7 @@ function ShowApplications({ onSelectApplication }) {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddApp, setShowAddApp] = useState(false);
 
-  // Chargement initial de la liste
+  // Chargement initial de la liste  (voir le serializers django pour comprendre les données envoyées)
   useEffect(() => {
     fetch('http://localhost:8000/api/applications/')
       .then(response => response.json())
@@ -32,16 +32,10 @@ function ShowApplications({ onSelectApplication }) {
       .catch(() => setIsLoading(false));
   };
 
-  const headersTable = ['Entreprise', 'Contact', 'Poste', 'Status',
-                        'Prochaine action', 'Échéance', 'Ville'];
+  const headersTable = ['Entreprise', 'Poste', 'Contrat', 'Status', 
+                        'Prochaine action',  'Date de candidature', 'Ville'];
 
-  const statusLabel = {
-    SENT: 'Envoyé',
-    INTERVIEW: 'Entretien',
-    REJECTED: 'Refusée',
-    TO_APPLY: 'À préparer',
-    NO_RESPONSE: 'Sans réponse'
-  };
+
 
   if (isLoading) {
     return <div>Chargement...</div>;
@@ -62,14 +56,14 @@ function ShowApplications({ onSelectApplication }) {
           {applications.map(application => (
             <tr key={application.id}>
               <td>{application.company}</td>
-              <td>{application.contact}</td>
               <td>{application.position}</td>
+              <td>{application.contract_type_label}</td>  
               <td className={`status ${application.status}`}>
-                {statusLabel[application.status]}
+                {application.status_label}
               </td>
-              <td>{application.next_action}</td>
-              <td>{application.next_action_date}</td>
-              <td>{application.city}</td>
+              <td>{application.next_action_label}</td>
+              <td>{application.date_apply}</td>
+              <td>{application.city_name}</td>
               <td>
                 <span
                   className="details-badge"

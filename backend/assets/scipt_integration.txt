@@ -1,0 +1,3 @@
+\COPY applications_city(nom_standard, nom_sans_pronom, nom_sans_accent, nom_standard_majuscule, reg_nom)
+FROM '/home/khalil/workspaces/react/suivi_condidatures/backend/assets/communes-france-2025.csv' 
+DELIMITER ',' 

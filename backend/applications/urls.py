@@ -1,5 +1,7 @@
-from django.urls import path
-from .views import ApplicationListCreate, ApplicationDetail
+from django.urls import path, include
+from .views import ApplicationListCreate, ApplicationDetail, CityViewSetList
+
+from rest_framework.routers import DefaultRouter
 
 """
 L'utilité de ce deuxième fichier urls.py est le découpage modulaire qui a pour utilité :
@@ -10,8 +12,13 @@ Organisation : Cela permet de préfixer facilement toutes les routes d'un module
 et ça facilité la maintenance et assure la scalabilité
 """
 
+router = DefaultRouter()
+router.register(r'cities', CityViewSetList, basename='city')
+
+
 urlpatterns = [
-    path('applications/', ApplicationListCreate.as_view(), name='app-list'),
+    path('', include(router.urls)),
+    path('applications/', ApplicationListCreate.as_view(), name='app-list'),  # tous, vont être après host/api/... (ex : http://127.0.0.1:8000/api/applications/ )
     path('applications/<int:pk>/', ApplicationDetail.as_view()),  # avec l'id de la candidature
 ]
 

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from "react-router-dom"
+
 import '../assets/styles.css'
 import Details from './detailCandidature.jsx';
 import AddApplication from './AddApplication.jsx';
+
 
 function ShowApplications({ onSelectApplication }) {
   const [applications, setApplications] = useState([]);
@@ -96,6 +99,7 @@ function ShowApplications({ onSelectApplication }) {
 }
 
 export default function App() {
+
   const [showDetails, setShowDetails] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
 
@@ -115,6 +119,7 @@ export default function App() {
         <Details
           candidature={selectedApplication}
           onBack={handleBackToList}
+          onDeleteSuccess={handleBackToList}
         />
       ) : (
         <ShowApplications onSelectApplication={handleSelectApplication} />

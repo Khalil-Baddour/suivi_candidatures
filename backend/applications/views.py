@@ -13,8 +13,15 @@ def index(request):
 
 class ApplicationListCreate(generics.ListCreateAPIView):
     """
-    qui gère automatiquement le GET (liste) et le POST (création)
+    qui gère automatiquement le GET (liste) et le POST (création), DELELTE, PUSH
     envoyer et recevoir les données (en integralité)
+    """
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+
+class ApplicationViewSet(viewsets.ModelViewSet):
+    """
+    à utiliser uniquement dans les router (dans urls : router.register)
     """
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer

@@ -1,37 +1,332 @@
-/* Fond sombre derrière la modale */
+/* ============================================================
+   styleAddApplication.css
+   Thème : Moderne blanc/bleu/gris — inspiré React docs
+   Police : Inter
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --white:          #ffffff;
+  --bg:             #f8fafc;
+  --border:         #e2e8f0;
+  --border-focus:   #3b82f6;
+  --text:           #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  --blue:           #3b82f6;
+  --blue-dark:      #2563eb;
+  --blue-light:     #eff6ff;
+  --blue-mid:       #dbeafe;
+  --red:            #ef4444;
+  --red-light:      #fef2f2;
+  --red-border:     #fecaca;
+  --green-dark:     #16a34a;
+  --green-light:    #f0fdf4;
+  --green-border:   #bbf7d0;
+  --radius-xs:      4px;
+  --radius-sm:      6px;
+  --radius:         8px;
+  --radius-lg:      12px;
+  --shadow-lg:      0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+  --shadow-focus:   0 0 0 3px rgba(59,130,246,0.15);
+  --font:           'Inter', system-ui, -apple-system, sans-serif;
+  --transition:     0.15s ease;
+}
+
+/* ── OVERLAY ────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
-  inset: 0;                        /* couvre tout l'écran */
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 20px;
+  animation: overlayIn 0.15s ease;
 }
 
-/* La fenêtre blanche au centre */
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 550px;
-  max-height: 90vh;       /* si le formulaire est long, on peut scroller */
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── FORM WRAPPER ───────────────────────────────────────────── */
+.add-application-form {
+  font-family: var(--font);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
   overflow-y: auto;
-  position: relative;
+  padding: 28px 32px 32px;
+  animation: formIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
-/* Bouton ✕ en haut à droite */
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
+.add-application-form::-webkit-scrollbar       { width: 4px; }
+.add-application-form::-webkit-scrollbar-track { background: transparent; }
+.add-application-form::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+@keyframes formIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── TITRE ──────────────────────────────────────────────────── */
+.add-application-form h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.form-required-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.form-required-note span { color: var(--red); }
+
+/* ── SECTIONS ───────────────────────────────────────────────── */
+.form-section        { margin-bottom: 24px; }
+
+.form-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── GRILLE ─────────────────────────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── GROUPES ────────────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+/* ── LABELS ─────────────────────────────────────────────────── */
+.add-application-form label,
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.label-required { color: var(--red); font-size: 14px; }
+
+/* ── INPUTS / SELECTS / TEXTAREA ─────────────────────────────── */
+.add-application-form input[type="text"],
+.add-application-form input[type="email"],
+.add-application-form input[type="url"],
+.add-application-form input[type="date"],
+.add-application-form select,
+.add-application-form textarea {
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  line-height: 1.5;
+}
+
+.add-application-form input::placeholder,
+.add-application-form textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.add-application-form input[type="text"]:hover,
+.add-application-form input[type="email"]:hover,
+.add-application-form input[type="url"]:hover,
+.add-application-form input[type="date"]:hover,
+.add-application-form select:hover,
+.add-application-form textarea:hover {
+  border-color: #cbd5e1;
+}
+
+.add-application-form input[type="text"]:focus,
+.add-application-form input[type="email"]:focus,
+.add-application-form input[type="url"]:focus,
+.add-application-form input[type="date"]:focus,
+.add-application-form select:focus,
+.add-application-form textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+}
+
+.add-application-form select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
   cursor: pointer;
-  color: #666;
 }
 
-.modal-close:hover {
-  color: black;
+.add-application-form textarea {
+  resize: vertical;
+  min-height: 88px;
+  line-height: 1.6;
+}
+
+/* ── FILE INPUT ─────────────────────────────────────────────── */
+.add-application-form input[type="file"] {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.add-application-form input[type="file"]:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.add-application-form input[type="file"]::file-selector-button {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 3px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.add-application-form input[type="file"]::file-selector-button:hover {
+  background: var(--blue-light);
+  border-color: var(--blue);
+  color: var(--blue-dark);
+}
+
+/* ── REACT-SELECT ───────────────────────────────────────────── */
+.add-application-form .react-select__control {
+  font-family: var(--font) !important;
+  font-size: 14px !important;
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  min-height: 38px !important;
+  transition: border-color var(--transition), box-shadow var(--transition) !important;
+}
+.add-application-form .react-select__control:hover       { border-color: #cbd5e1 !important; }
+.add-application-form .react-select__control--is-focused { border-color: var(--border-focus) !important; box-shadow: var(--shadow-focus) !important; }
+.add-application-form .react-select__placeholder         { color: var(--text-muted) !important; font-size: 14px !important; }
+.add-application-form .react-select__single-value        { color: var(--text) !important; font-size: 14px !important; }
+.add-application-form .react-select__menu               { border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow-lg) !important; z-index: 9999 !important; }
+.add-application-form .react-select__option             { font-size: 13.5px !important; color: var(--text) !important; cursor: pointer !important; padding: 8px 12px !important; }
+.add-application-form .react-select__option--is-focused  { background: var(--blue-light) !important; color: var(--blue-dark) !important; }
+.add-application-form .react-select__option--is-selected { background: var(--blue) !important; color: white !important; }
+
+/* ── MESSAGES ───────────────────────────────────────────────── */
+.form-error {
+  font-size: 13px;
+  color: var(--red);
+  background: var(--red-light);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.form-success {
+  font-size: 13px;
+  color: var(--green-dark);
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-success::before { content: '✓'; font-weight: 700; }
+
+.form-files-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
+
+/* ── DIVIDER ────────────────────────────────────────────────── */
+.form-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0 20px;
+}
+
+/* ── BOUTON SUBMIT ──────────────────────────────────────────── */
+.add-application-form button[type="button"] {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: var(--blue);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  width: 100%;
+  cursor: pointer;
+  margin-top: 4px;
+  letter-spacing: -0.1px;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.add-application-form button[type="button"]:hover:not(:disabled)  { background: var(--blue-dark); }
+.add-application-form button[type="button"]:active:not(:disabled) { transform: scale(0.99); }
+.add-application-form button[type="button"]:disabled              { opacity: 0.5; cursor: not-allowed; }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .add-application-form { padding: 20px 18px 24px; border-radius: var(--radius); }
+  .form-row { grid-template-columns: 1fr; }
 }

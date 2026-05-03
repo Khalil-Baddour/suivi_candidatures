@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Application, City
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer 
 
 
 
@@ -25,9 +26,17 @@ class ApplicationSerializer(serializers.ModelSerializer):
         model = Application  # le model (table)
         fields = '__all__' #renvoi tous les champs de la table + ceux créé en dessous à l'aide des choices label défini dans le model
 
+
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City  # le model (table City)
         fields = '__all__' #renvoi tous les champs de la table  City
 
  
+# Ajouter le username dans le token JWT
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["username"] = user.username
+        return token

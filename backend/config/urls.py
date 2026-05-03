@@ -16,18 +16,32 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from applications.views import register_user 
 
 # gestion fichiers statiques
 from django.conf import settings
 from django.conf.urls.static import static
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 from applications import views
 
 # urls
 urlpatterns = [
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
     path("admin/", admin.site.urls),
     path("", views.index),
-    path("api/", include('applications.urls'))  # ça va contenir les urls mis dans url de applications
+    path("api/", include('applications.urls')),  # ça va contenir les urls mis dans url de applications
+
+    path('api/register/', register_user, name='register'),
+
+    path('api/password-forgot/', include('django_rest_passwordreset.urls', namespace='password_forgot')),
 ]
 
 # fichiers statiques (media)

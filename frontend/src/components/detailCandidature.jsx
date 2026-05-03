@@ -1,103 +1,76 @@
 import { useState } from 'react'
 import '../assets/styleDetails.css'
+import ModifyApplication from './ModifyApplications'
 
-// Configuration 
 const API_URL = import.meta.env.VITE_API_URL
 
-// Mapping statut : classe CSS du badge coloré
+// Mapping statut → classe CSS du badge
 const STATUS_COLORS = {
   'En cours':    'badge--blue',
-  'Entretien':   'badge--purple',
+  'Entretien':   'badge--amber',
   'Offre reçue': 'badge--green',
   'Refusé':      'badge--red',
-  'En attente':  'badge--amber',
+  'En attente':  'badge--gray',
 }
 
-//  Sous-composant : valeur vide 
-// Affiché à la place d'un champ null/vide pour éviter les blancs silencieux
-function EmptyValue({ label = '—' }) {
-  return <span className="empty-value">{label}</span>
+// Valeur vide — évite les blancs silencieux
+function EmptyValue() {
+  return <span className="empty-value">Non renseigné</span>
 }
 
-// Composant principal 
-// Props :
-//   candidature    : objet complet de la candidature à afficher
-//   onBack         :  callback : retour à la liste sans action
-//   onDeleteSuccess:  callback : appelé après suppression réussie (ex: retour liste)
-function Details({ candidature, onBack, onDeleteSuccess }) {
+// ─── Composant principal ──────────────────────────────────────────────────────
+function Details({ candidature, onBack, onDeleteSuccess, onModifySuccess }) {
 
-  // Affichage / masquage de la modale de confirmation suppression
+  const [showModify,       setShowModify]       = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting,       setIsDeleting]       = useState(false)
+  const [deleteError,      setDeleteError]      = useState(null)
 
-  // true pendant l'appel API → désactive le bouton pour éviter le double-clic
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  // Message d'erreur à afficher dans la modale si la suppression échoue
-  const [deleteError, setDeleteError] = useState(null)
-
-  // ── Fermeture propre de la modale 
-  // Reset aussi l'erreur pour ne pas la réafficher à la prochaine ouverture
-  function closeModal() {
+  function closeDeleteModal() {
     setShowDeleteConfirm(false)
     setDeleteError(null)
   }
 
-  // ── Suppression 
   async function handleDeleteApplication() {
     setIsDeleting(true)
-    setDeleteError(null) // reset l'éventuelle erreur précédente
-
+    setDeleteError(null)
     try {
       const response = await fetch(`${API_URL}/applications/${candidature.id}/`, {
         method: 'DELETE',
-        // Pas de body : l'id est dans l'URL, Django s'en charge
       })
-
       if (response.status === 204) {
-        // 204 No Content = suppression réussie côté Django
-        closeModal()
-        onDeleteSuccess() // le parent redirige (retour liste, navigate, etc.)
-
+        closeDeleteModal()
+        onDeleteSuccess()
       } else if (response.status === 404) {
-        // La ressource n'existe déjà plus en base
         setDeleteError("Cette candidature n'existe plus.")
-
       } else {
-        // Autre erreur serveur inattendue
         setDeleteError("Une erreur est survenue, réessaie.")
       }
-
-    } catch (error) {
-      // Erreur réseau : pas de connexion, serveur down, timeout…
+    } catch {
       setDeleteError("Impossible de joindre le serveur.")
-      console.error("Erreur réseau lors de la suppression :", error)
-
     } finally {
-      // Toujours réactiver le bouton, succès ou échec
       setIsDeleting(false)
     }
   }
 
-  // ── Modification (à implémenter) 
-  async function handleModifyApplication() {
-    // TODO : ouvrir un formulaire d'édition ou naviguer vers /edit/:id
+  function handleModifySuccess(updatedData) {
+    setShowModify(false)
+    onModifySuccess(updatedData)
   }
 
-  // Classe CSS du badge selon le statut, gris par défaut si statut inconnu
   const badgeClass = STATUS_COLORS[candidature.status_label] ?? 'badge--gray'
 
-  // ── Rendu
   return (
     <div className="details-page">
 
-      {/* NAVIGATION -------------------------------------------------------- */}
+      {/* ── TOPBAR ── */}
       <div className="details-topbar">
         <button onClick={onBack} className="back-btn" aria-label="Retour à la liste">
-          ← Retour à la liste
+          Retour à la liste
         </button>
       </div>
 
-      {/* HEADER ------------------------------------------------------------ */}
+      {/* ── HEADER ── */}
       <div className="details-header">
         <div className="details-header__title">
           <span className="details-header__company">
@@ -112,13 +85,13 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
         </span>
       </div>
 
-      {/* CONTENU ----------------------------------------------------------- */}
+      {/* ── CONTENU ── */}
       <div className="details-container">
 
         {/* Infos entreprise + poste */}
         <div className="grid-2">
           <div className="card">
-            <h2 className="card__title">🏢 Infos entreprise</h2>
+            <h2 className="card__title">Infos entreprise</h2>
             <dl className="info-list">
               <dt>Entreprise</dt>
               <dd>{candidature.company || <EmptyValue />}</dd>
@@ -130,18 +103,17 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
               <dd>
                 {candidature.email
                   ? <a href={`mailto:${candidature.email}`}>{candidature.email}</a>
-                  : <EmptyValue />
-                }
+                  : <EmptyValue />}
               </dd>
             </dl>
           </div>
 
           <div className="card">
-            <h2 className="card__title">📄 Infos poste</h2>
+            <h2 className="card__title">Infos poste</h2>
             <dl className="info-list">
               <dt>Poste</dt>
               <dd>{candidature.position || <EmptyValue />}</dd>
-              <dt>Type</dt>
+              <dt>Contrat</dt>
               <dd>{candidature.contract_type_label || <EmptyValue />}</dd>
               <dt>Ville</dt>
               <dd>{candidature.city_name || <EmptyValue />}</dd>
@@ -151,8 +123,7 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
               <dd>
                 {candidature.offer_link
                   ? <a href={candidature.offer_link} target="_blank" rel="noopener noreferrer">Voir l'offre →</a>
-                  : <EmptyValue />
-                }
+                  : <EmptyValue />}
               </dd>
             </dl>
           </div>
@@ -160,44 +131,40 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
 
         {/* Mission */}
         <div className="card">
-          <h2 className="card__title">📝 Mission / Description</h2>
+          <h2 className="card__title">Mission / Description</h2>
           {candidature.job_mission
             ? <p className="card__body">{candidature.job_mission}</p>
-            : <p className="empty-value">Aucune description renseignée.</p>
-          }
+            : <p className="empty-value">Aucune description renseignée.</p>}
         </div>
 
         {/* Prochaine action + Documents */}
         <div className="grid-2">
           <div className="card card--highlight">
-            <h2 className="card__title">📅 Prochaine action</h2>
+            <h2 className="card__title">Prochaine action</h2>
             <dl className="info-list">
               <dt>Statut</dt>
               <dd>{candidature.status_label || <EmptyValue />}</dd>
               <dt>Action</dt>
               <dd>{candidature.next_action_label || <EmptyValue />}</dd>
-              <dt>Date</dt>
+              <dt>Échéance</dt>
               <dd>{candidature.next_action_date || <EmptyValue />}</dd>
             </dl>
           </div>
 
           <div className="card">
-            <h2 className="card__title">📎 Documents</h2>
+            <h2 className="card__title">Documents</h2>
             <div className="doc-list">
-              {/* CV et LM ont chacun leur propre condition — indépendantes */}
               <div className="doc-item">
                 <span className="doc-label">CV</span>
                 {candidature.cv
                   ? <a href={candidature.cv} target="_blank" rel="noopener noreferrer" className="doc-link">📄 Voir le CV</a>
-                  : <span className="empty-value">Non renseigné</span>
-                }
+                  : <span className="empty-value">Non renseigné</span>}
               </div>
               <div className="doc-item">
                 <span className="doc-label">Lettre de motivation</span>
                 {candidature.cover_letter
                   ? <a href={candidature.cover_letter} target="_blank" rel="noopener noreferrer" className="doc-link">📄 Voir la lettre</a>
-                  : <span className="empty-value">Non renseignée</span>
-                }
+                  : <span className="empty-value">Non renseignée</span>}
               </div>
             </div>
           </div>
@@ -205,21 +172,19 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
 
         {/* Notes */}
         <div className="card">
-          <h2 className="card__title">🗒️ Notes</h2>
+          <h2 className="card__title">Notes</h2>
           {candidature.notes
             ? <p className="card__body">{candidature.notes}</p>
-            : <p className="empty-value">Aucune note renseignée.</p>
-          }
+            : <p className="empty-value">Aucune note renseignée.</p>}
         </div>
 
         {/* Boutons d'action */}
         <div className="actions">
-          <button onClick={handleModifyApplication} className="btn btn--primary">
-            ✏️ Modifier
-          </button>
-          {/* Ouvre la modale — ne supprime pas directement */}
           <button onClick={() => setShowDeleteConfirm(true)} className="btn btn--danger-outline">
             Supprimer
+          </button>
+          <button onClick={() => setShowModify(true)} className="btn btn--primary">
+            ✏️ Modifier
           </button>
         </div>
 
@@ -232,10 +197,33 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
 
       </div>
 
-      {/* MODALE DE CONFIRMATION SUPPRESSION -------------------------------- */}
+      {/* ── MODALE MODIFICATION ── */}
+      {showModify && (
+        <div className="modal-overlay" onClick={() => setShowModify(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button
+              className="modal-close"
+              onClick={() => setShowModify(false)}
+              aria-label="Fermer"
+            >✕</button>
+            <ModifyApplication
+              candidature={candidature}
+              onSuccess={handleModifySuccess}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── MODALE SUPPRESSION ── */}
       {showDeleteConfirm && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-          <div className="modal">
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-title"
+          onClick={closeDeleteModal}
+        >
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <h2 id="confirm-title" className="modal__title">
               Supprimer cette candidature ?
             </h2>
@@ -244,22 +232,16 @@ function Details({ candidature, onBack, onDeleteSuccess }) {
               <strong>{candidature.company}</strong> sera définitivement supprimée.
             </p>
 
-            {/* Message d'erreur API affiché uniquement en cas d'échec */}
-            {deleteError && (
-              <p className="modal__error">{deleteError}</p>
-            )}
+            {deleteError && <p className="modal__error">{deleteError}</p>}
 
             <div className="modal__actions">
-              {/* Annuler : ferme la modale ET reset l'erreur */}
               <button
-                onClick={closeModal}
+                onClick={closeDeleteModal}
                 className="btn btn--secondary"
                 disabled={isDeleting}
               >
                 Annuler
               </button>
-
-              {/* Confirmer : désactivé pendant la requête pour éviter le double-clic */}
               <button
                 onClick={handleDeleteApplication}
                 className="btn btn--danger"

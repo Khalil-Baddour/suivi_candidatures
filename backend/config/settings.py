@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     # Ajoutés :
     'rest_framework',
+    'django_rest_passwordreset',   # gestion de mot de passe (rest password)
     'corsheaders',      # Indispensable pour que React puisse parler à Django
     'applications',   #Mon app
 ]
@@ -141,6 +142,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Configurer le key du mailer (Resend)
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_FROM", "onboarding@resend.dev")
+
+# Génération du token 
+DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
+    "CLASS": "django_rest_passwordreset.tokens.RandomStringTokenGenerator",
+    "OPTIONS": {
+        "min_length": 20,
+        "max_length": 30
+    }
+}
+DJANGO_REST_PASSWORDRESET_TOKEN_EXPIRY_TIME = 0.5  # Durée de validité du token (en heures) :  0.5 => 30 minutes
+
+SIMPLE_JWT = {
+    "TOKEN_OBTAIN_SERIALIZER": "applications.serializers.CustomTokenObtainPairSerializer",
+}
 
 # Autorise ton frontend React (souvent sur le port 3000 ou 5173)
 CORS_ALLOWED_ORIGINS = [

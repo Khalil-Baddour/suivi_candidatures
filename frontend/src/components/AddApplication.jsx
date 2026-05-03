@@ -3,7 +3,7 @@ import AsyncSelect from 'react-select/async';
 
 import '../assets/styleAddApplication.css'
 
-const API_URL = import.meta.env.VITE_API_URL;  // variable d'env
+const API_URL = import.meta.env.VITE_API_URL;  // variable d'env   
 
 
 export default function AddApplication({ onSuccess }) {
@@ -13,7 +13,7 @@ export default function AddApplication({ onSuccess }) {
   const [roleContact, setRoleContact] = useState(''); ///
 
   const [position, setPosition] = useState(''); //
-  const [jobContractType, setJobContractType] = useState('');  //
+  const [jobContractType, setJobContractType] = useState('PERMANENT');  //
   const [jobMission, setJobMission] = useState(''); ///
   const [offerLink, setOfferLink] = useState('');  ///
   const [dateApply, setDateApply] = useState(''); ///
@@ -53,7 +53,7 @@ export default function AddApplication({ onSuccess }) {
   };
 
 
-  // 2. Fonction gérant l'ajout et l'enregistrement d'une candidature ajoutée
+  // 2. Fonction gérant l'ajout et l'enregistrement d'une candidature ajoutée   job_contract_type
   const handleSubmit = async () => {
     // Validation des champs obligatoires
     if (!company || !position || !status || !city) {
@@ -108,141 +108,210 @@ export default function AddApplication({ onSuccess }) {
     }
   };
 
-
-  return (
+return (
     <div className="add-application-form">
       <h2>Ajouter une candidature</h2>
+      <p className="form-required-note"><span>*</span> Champs obligatoires</p>
 
       {error && <p className="form-error">{error}</p>}
 
-      {/* Champs obligatoires  */}
-      <label htmlFor="company">Entreprise *</label>
-      <input
-        type="text" id="company"
-        value={company} onChange={(e) => setCompany(e.target.value)}
-      />
+      {/* ── SECTION : Poste ───────────────────────────────── */}
+      <div className="form-section">
+        <p className="form-section-title">Poste</p>
 
-      <label htmlFor="position">Poste *</label>
-      <input
-        type="text" id="position"
-        value={position} onChange={(e) => setPosition(e.target.value)}
-      />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="company">Entreprise <span className="label-required">*</span></label>
+            <input
+              type="text" id="company"
+              placeholder="ex : Airbus, SNCF..."
+              value={company} onChange={(e) => setCompany(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="position">Poste <span className="label-required">*</span></label>
+            <input
+              type="text" id="position"
+              placeholder="ex : Développeur fullstack"
+              value={position} onChange={(e) => setPosition(e.target.value)}
+            />
+          </div>
+        </div>
 
-      <label htmlFor="status">Statut *</label>
-      <select id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
-        <option value="TO_PREPARE">À préparer</option>
-        <option value="SENT">Envoyé</option>
-        <option value="INTERVIEW">Entretien</option>
-        <option value="REJECTED">Refusé</option>
-        <option value="ACCEPTED">Acceptée</option>
-        <option value="NO_RESPONSE">Sans réponse</option>
-        
-      </select>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="status">Statut <span className="label-required">*</span></label>
+            <select id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="TO_PREPARE">À préparer</option>
+              <option value="SENT">Envoyé</option>
+              <option value="INTERVIEW">Entretien</option>
+              <option value="REJECTED">Refusé</option>
+              <option value="ACCEPTED">Acceptée</option>
+              <option value="NO_RESPONSE">Sans réponse</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="job-contract-type">Contrat <span className="label-required">*</span></label>
+            <select id="job-contract-type" value={jobContractType} onChange={(e) => setJobContractType(e.target.value)}>
+              <option value="PERMANENT">CDI</option>
+              <option value="FIXED_TERM">CDD</option>
+              <option value="INTERNSHIP">Stage</option>
+              <option value="APPRENTICE_SHIP">Alternance</option>
+              <option value="FREELANCE">Freelance</option>
+              <option value="OTHER">Autre</option>
+            </select>
+          </div>
+        </div>
 
-      <label htmlFor="city">Ville *</label>
-      <AsyncSelect 
-        id="city"
-        cacheOptions 
-        defaultOptions={false} // Ne rien charger au démarrage
-        loadOptions={loadCityOptions}
-        onChange={(selectedOption) => setCity(selectedOption ? selectedOption.value : null)}
-        placeholder="Tapez le nom d'une ville..."
-        noOptionsMessage={({ inputValue }) => {
-          if (!inputValue || inputValue.length < 2) {
-            return "Saisissez le nom de votre ville";
-          }
-          return "Aucune ville trouvée";
-        }}
-        loadingMessage={() => "Recherche en cours..."}
-      />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="city">Ville <span className="label-required">*</span></label>
+            <AsyncSelect
+              inputId="city"
+              classNamePrefix="react-select"
+              cacheOptions
+              defaultOptions={false}
+              loadOptions={loadCityOptions}
+              onChange={(selectedOption) => setCity(selectedOption ? selectedOption.value : null)}
+              placeholder="Tapez le nom d'une ville..."
+              noOptionsMessage={({ inputValue }) =>
+                !inputValue || inputValue.length < 2
+                  ? "Saisissez au moins 2 lettres"
+                  : "Aucune ville trouvée"
+              }
+              loadingMessage={() => "Recherche en cours..."}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="date-apply">Date de candidature</label>
+            <input
+              type="date" id="date-apply"
+              value={dateApply} onChange={(e) => setDateApply(e.target.value)}
+            />
+          </div>
+        </div>
 
-      <label htmlFor="jobContractType">Contrat *</label>
-      <select id="job-contract-type" value={jobContractType} onChange={(e) => setJobContractType(e.target.value)}>
-        <option value="PERMANENT">CDI</option>
-        <option value="FIXED_TERM">CDD</option>
-        <option value="INTERNSHIP">Stage</option>
-        <option value="APPRENTICE_SHIP">Alternance</option>
-        <option value="FREELANCE">Freelance</option>
-        <option value="OTHER">Autre</option>
-      </select>
+        <div className="form-group">
+          <label htmlFor="job-mission">Missions du poste</label>
+          <textarea 
+            id="job-mission"
+            placeholder="ex : Développement API, gestion BDD..."
+            value={jobMission} onChange={(e) => setJobMission(e.target.value)}
+          >
+          </textarea>
 
+        </div>
 
-      {/* Champs optionnels */}
+        <div className="form-group">
+          <label htmlFor="offer-link">Lien vers l'offre</label>
+          <input
+            type="url" id="offer-link"
+            placeholder="https://..."
+            value={offerLink} onChange={(e) => setOfferLink(e.target.value)}
+          />
+        </div>
+      </div>
 
-     <label htmlFor="jobMission">Missions du poste</label>
-      <input
-        type="text" id="job-mission"
-        value={jobMission} onChange={(e) => setJobMission(e.target.value)}
-      />
+      <div className="form-divider" />
 
-     <label htmlFor="offerLink">Lien vers l'offre</label>
-      <input
-        type="url" id="offer-link"
-        value={offerLink} onChange={(e) => setOfferLink(e.target.value)}
-      />
+      {/* ── SECTION : Contact RH ──────────────────────────── */}
+      <div className="form-section">
+        <p className="form-section-title">Contact RH</p>
 
-     <label htmlFor="dateApply">Date de candidature</label>
-      <input
-        type="date" id="date-apply"
-        value={dateApply} onChange={(e) => setDateApply(e.target.value)}
-      />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="contact">Personne HR</label>
+            <input
+              type="text" id="contact"
+              placeholder="Prénom Nom"
+              value={contact} onChange={(e) => setContact(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="roleContact">Son rôle</label>
+            <input
+              type="text" id="roleContact"
+              placeholder="ex : Talent Acquisition"
+              value={roleContact} onChange={(e) => setRoleContact(e.target.value)}
+            />
+          </div>
+        </div>
 
-      <label htmlFor="contact">Personne HR</label>
-      <input
-        type="text" id="contact"
-        value={contact} onChange={(e) => setContact(e.target.value)}
-      />
+        <div className="form-group">
+          <label htmlFor="email">Adresse mail</label>
+          <input
+            type="email" id="email"
+            placeholder="contact@entreprise.com"
+            value={email} onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+      </div>
 
-      <label htmlFor="email">Son adresse mail</label>
-      <input
-        type="email" id="email"
-        value={email} onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="form-divider" />
 
-      <label htmlFor="roleContact">Son Role</label>
-      <input
-        type="text" id="roleContact"
-        value={roleContact} onChange={(e) => setRoleContact(e.target.value)}
-      />
+      {/* ── SECTION : Suivi ───────────────────────────────── */}
+      <div className="form-section">
+        <p className="form-section-title">Suivi</p>
 
-      <label htmlFor="nextAction">Prochaine action</label>
-      <select id="nextAction" value={nextAction} onChange={(e) => setNextAction(e.target.value)}>
-        <option value="TO_FOLLOW_UP">Relancer</option>
-        <option value="TO_PREPARE_INTERVIEW">Préparer l'entretien</option>
-        <option value="SEND_APPLICATION">Envoyer la candidature</option>
-        <option value="NONE">Aucune</option>
-      </select>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="nextAction">Prochaine action</label>
+            <select id="nextAction" value={nextAction} onChange={(e) => setNextAction(e.target.value)}>
+              <option value="NONE">Aucune</option>
+              <option value="SEND_APPLICATION">Envoyer la candidature</option>
+              <option value="TO_FOLLOW_UP">Relancer</option>
+              <option value="TO_PREPARE_INTERVIEW">Préparer l'entretien</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="nextActionDate">Échéance</label>
+            <input
+              type="date" id="nextActionDate"
+              value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)}
+            />
+          </div>
+        </div>
 
-      <label htmlFor="nextActionDate">Échéance</label>
-      <input
-        type="date" id="nextActionDate"
-        value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)}
-      />
+        <div className="form-group">
+          <label htmlFor="notes">Notes</label>
+          <textarea
+            id="notes"
+            placeholder="Informations complémentaires, impression sur l'offre..."
+            value={notes} onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
+      </div>
 
-      {/* Fichiers */}
-      <label htmlFor="cv">CV (PDF, DOCX…)</label>
-      <input
-        type="file" id="cv"
-        accept=".pdf,.doc,.docx"
-        onChange={(e) => setCv(e.target.files[0] ?? null)}
-      />
+      <div className="form-divider" />
 
-      <label htmlFor="coverLetter">Lettre de motivation</label>
-      <input
-        type="file" id="coverLetter"
-        accept=".pdf,.doc,.docx"
-        onChange={(e) => setCoverLetter(e.target.files[0] ?? null)}
-      />
+      {/* ── SECTION : Documents ───────────────────────────── */}
+      <div className="form-section">
+        <p className="form-section-title">Documents</p>
 
-      <label htmlFor="notes">Notes</label>
-      <input
-        type="text" id="notes"
-        value={notes} onChange={(e) => setNotes(e.target.value)}
-      />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="cv">CV</label>
+            <input
+              type="file" id="cv"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => setCv(e.target.files[0] ?? null)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="coverLetter">Lettre de motivation</label>
+            <input
+              type="file" id="coverLetter"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => setCoverLetter(e.target.files[0] ?? null)}
+            />
+          </div>
+        </div>
+      </div>
 
+      {/* ── BOUTON ────────────────────────────────────────── */}
       <button type="button" onClick={handleSubmit} disabled={isSubmitting}>
-        {isSubmitting ? 'Envoi en cours…' : 'Valider'}
+        {isSubmitting ? 'Envoi en cours…' : 'Valider la candidature'}
       </button>
     </div>
-  );
+  ); ;
 }

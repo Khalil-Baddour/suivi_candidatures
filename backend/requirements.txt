@@ -1,0 +1,10 @@
+Django==4.2.27
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+django-rest-passwordreset
+psycopg2-binary
+python-dotenv
+gunicorn
+resend
+whitenoise

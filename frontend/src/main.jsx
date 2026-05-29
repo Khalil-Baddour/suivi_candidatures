@@ -3,13 +3,15 @@ import { createRoot } from 'react-dom/client'
 import App from './components/App.jsx'
 
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { LanguageProvider } from "./context/LanguageContext.jsx";
 
 const root = createRoot(document.getElementById("root"));
 root.render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-    
+    <LanguageProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </LanguageProvider>
   </StrictMode>
 );

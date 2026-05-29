@@ -7,6 +7,8 @@ import Login from "./Login";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
+import LanguageSwitcher from "./LanguageSwitcher";
+import '../assets/styleLangSwitcher.css';
 
 function AuthWrapper() {
   const [authView, setAuthView] = useState("login");
@@ -53,6 +55,9 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 1000 }}>
+        <LanguageSwitcher />
+      </div>
       <Routes>
         {/* Cette route est interceptée AVANT le check auth */}
         <Route path="/reset-password" element={<ResetPassword />} />

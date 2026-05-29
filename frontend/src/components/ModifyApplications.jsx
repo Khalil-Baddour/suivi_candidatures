@@ -1,11 +1,13 @@
 import { useState } from "react";
 import AsyncSelect from 'react-select/async';
+import { useLanguage } from "../context/LanguageContext";
 import '../assets/styleAddApplication.css'
 
-const API_URL = import.meta.env.VITE_API_URL;  // variable d'env
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 export default function Modifyapplication({ candidature, onSuccess }) {
+    const { t } = useLanguage();
     const [company, setCompany] = useState(candidature.company ?? '')
     const [contact, setContact] = useState(candidature.contact ?? '')
     const [email, setEmail] = useState(candidature.email ?? '')
@@ -24,48 +26,37 @@ export default function Modifyapplication({ candidature, onSuccess }) {
     const [nextActionDate, setNextActionDate] = useState(candidature.next_action_date ?? '')
     const [nextAction, setNextAction] = useState(candidature.next_action ?? '')
     const [notes, setNotes] = useState(candidature.notes ?? '')
-    const [cv, setCv] = useState(null) // cv et CL  on ne peut pas pré-remplir un input file dans le navigateur
+    const [cv, setCv] = useState(null)
     const [coverLetter, setCoverLetter] = useState(null)
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
-
     const [successMsg, setSuccessMsg] = useState('');
 
-    // 1. La fonction qui va interroger Django pour la recherche des villes lors du saisi (à chaque fois qu'ion tappe une lettre)
     const loadCityOptions = async (inputValue) => {
-        if (!inputValue || inputValue.length < 2) {
-        return []; // On ne cherche pas si moins de 2 lettres tapées
-        }
-        
+        if (!inputValue || inputValue.length < 2) return [];
         try {
-        const response = await fetch(`${API_URL}/cities/?search=${inputValue}`);
-        const data = await response.json();
-        
-        // react-select a besoin d'un format précis : { value: ID, label: TEXTE }
-        return data.map(c => ({
-            value: c.id,
-            label: c.nom_standard
-        })).sort((a, b)=> a.label.localeCompare(b.label));
+            const response = await fetch(`${API_URL}/cities/?search=${inputValue}`);
+            const data = await response.json();
+            return data.map(c => ({
+                value: c.id,
+                label: c.nom_standard
+            })).sort((a, b) => a.label.localeCompare(b.label));
         } catch (error) {
-        console.error("Erreur de recherche:", error);
-        return [];
+            console.error("Erreur de recherche:", error);
+            return [];
         }
     };
 
-
-    // 2. Fonction gérant l'ajout et l'enregistrement d'une candidature ajoutée
     const handleModify = async () => {
-        // Validation des champs obligatoires
         if (!company || !position || !status || !city) {
-        setError('Les champs Entreprise, Poste, Statut et Ville sont obligatoires.');
-        return;
+            setError(t('form.required_fields'));
+            return;
         }
 
         setIsSubmitting(true);
         setError(null);
 
-        // FormData pour gérer les fichiers (CV, lettre de motivation)
         const formData = new FormData();
         formData.append('company', company);
         formData.append('position', position);
@@ -73,8 +64,6 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         formData.append('city', city.value);
         formData.append('job_contract_type', jobContractType);
 
-
-        // Champs optionnels — on n'envoie que s'ils ont une valeur
         if (contact)        formData.append('contact', contact);
         if (email)          formData.append('email', email);
         if (roleContact)    formData.append('role_contact', roleContact);
@@ -82,62 +71,60 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         if (nextActionDate) formData.append('next_action_date', nextActionDate);
         if (cv)             formData.append('cv', cv);
         if (coverLetter)    formData.append('cover_letter', coverLetter);
-        if (jobMission)     formData.append('job_mission', jobMission);   
+        if (jobMission)     formData.append('job_mission', jobMission);
         if (offerLink)      formData.append('offer_link', offerLink);
         if (dateApply)      formData.append('date_apply', dateApply);
         if (notes)          formData.append('notes', notes);
 
         try {
-        const response = await fetch(`${API_URL}/applications/${candidature.id}/`, {
-            method: 'PATCH',
-            body: formData,
-        });
+            const response = await fetch(`${API_URL}/applications/${candidature.id}/`, {
+                method: 'PATCH',
+                body: formData,
+            });
 
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(JSON.stringify(errData));
-        }
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(JSON.stringify(errData));
+            }
 
-        const updatedCandidature = await response.json(); //renvoie l'objet mis à jour
+            const updatedCandidature = await response.json();
 
-        setSuccessMsg('Modifications sauvegardées !!');
+            setSuccessMsg(t('modify_application.success'));
 
-        // Succès : remonter l'info au parent pour fermer le form et rafraîchir
-        setTimeout(() => {
+            setTimeout(() => {
                 setSuccessMsg('');
-                // On passe la nouvelle donnée au composant parent !
-                if (onSuccess) onSuccess(updatedCandidature); 
+                if (onSuccess) onSuccess(updatedCandidature);
             }, 800);
 
-            } catch (err) {
-                setError(`Erreur lors de l'envoi : ${err.message}`);
-            } finally {
-                setIsSubmitting(false);
-            }
-        };
+        } catch (err) {
+            setError(`${t('form.error_send')} ${err.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
     <div className="add-application-form">
-      <h2>Mettre à jour la candidature</h2>
-      <p className="form-required-note"><span>*</span> Champs obligatoires</p>
+      <h2>{t('modify_application.title')}</h2>
+      <p className="form-required-note"><span>*</span> {t('form.required_note')}</p>
 
       {successMsg && <p className="form-success">{successMsg}</p>}
       {error && <p className="form-error">{error}</p>}
 
       {/* ── SECTION : Poste ───────────────────────────────── */}
       <div className="form-section">
-        <p className="form-section-title">Poste</p>
+        <p className="form-section-title">{t('form.section_post')}</p>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="company">Entreprise <span className="label-required">*</span></label>
+            <label htmlFor="company">{t('form.label_company')} <span className="label-required">*</span></label>
             <input
               type="text" id="company"
               value={company} onChange={(e) => setCompany(e.target.value)}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="position">Poste <span className="label-required">*</span></label>
+            <label htmlFor="position">{t('form.label_position')} <span className="label-required">*</span></label>
             <input
               type="text" id="position"
               value={position} onChange={(e) => setPosition(e.target.value)}
@@ -147,32 +134,32 @@ export default function Modifyapplication({ candidature, onSuccess }) {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="status">Statut <span className="label-required">*</span></label>
+            <label htmlFor="status">{t('form.label_status')} <span className="label-required">*</span></label>
             <select id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="TO_PREPARE">À préparer</option>
-              <option value="SENT">Envoyé</option>
-              <option value="INTERVIEW">Entretien</option>
-              <option value="REJECTED">Refusé</option>
-              <option value="ACCEPTED">Acceptée</option>
-              <option value="NO_RESPONSE">Sans réponse</option>
+              <option value="TO_PREPARE">{t('form.status_to_prepare')}</option>
+              <option value="SENT">{t('form.status_sent')}</option>
+              <option value="INTERVIEW">{t('form.status_interview')}</option>
+              <option value="REJECTED">{t('form.status_rejected')}</option>
+              <option value="ACCEPTED">{t('form.status_accepted')}</option>
+              <option value="NO_RESPONSE">{t('form.status_no_response')}</option>
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="job-contract-type">Contrat <span className="label-required">*</span></label>
+            <label htmlFor="job-contract-type">{t('form.label_contract')} <span className="label-required">*</span></label>
             <select id="job-contract-type" value={jobContractType} onChange={(e) => setJobContractType(e.target.value)}>
-              <option value="PERMANENT">CDI</option>
-              <option value="FIXED_TERM">CDD</option>
-              <option value="INTERNSHIP">Stage</option>
-              <option value="APPRENTICE_SHIP">Alternance</option>
-              <option value="FREELANCE">Freelance</option>
-              <option value="OTHER">Autre</option>
+              <option value="PERMANENT">{t('form.contract_permanent')}</option>
+              <option value="FIXED_TERM">{t('form.contract_fixed_term')}</option>
+              <option value="INTERNSHIP">{t('form.contract_internship')}</option>
+              <option value="APPRENTICE_SHIP">{t('form.contract_apprenticeship')}</option>
+              <option value="FREELANCE">{t('form.contract_freelance')}</option>
+              <option value="OTHER">{t('form.contract_other')}</option>
             </select>
           </div>
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="city">Ville <span className="label-required">*</span></label>
+            <label htmlFor="city">{t('form.label_city')} <span className="label-required">*</span></label>
             <AsyncSelect
               inputId="city"
               classNamePrefix="react-select"
@@ -181,17 +168,17 @@ export default function Modifyapplication({ candidature, onSuccess }) {
               defaultOptions={false}
               loadOptions={loadCityOptions}
               onChange={(selectedOption) => setCity(selectedOption ?? null)}
-              placeholder="Tapez le nom d'une ville..."
+              placeholder={t('form.city_placeholder')}
               noOptionsMessage={({ inputValue }) =>
                 !inputValue || inputValue.length < 2
-                  ? "Saisissez au moins 2 lettres"
-                  : "Aucune ville trouvée"
+                  ? t('form.city_min2')
+                  : t('form.city_not_found')
               }
-              loadingMessage={() => "Recherche en cours..."}
+              loadingMessage={() => t('form.city_loading')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="date-apply">Date de candidature</label>
+            <label htmlFor="date-apply">{t('form.label_date_apply')}</label>
             <input
               type="date" id="date-apply"
               value={dateApply} onChange={(e) => setDateApply(e.target.value)}
@@ -200,7 +187,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="job-mission">Missions du poste</label>
+          <label htmlFor="job-mission">{t('form.label_mission')}</label>
           <textarea
             id="job-mission"
             value={jobMission} onChange={(e) => setJobMission(e.target.value)}
@@ -208,7 +195,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="offer-link">Lien vers l'offre</label>
+          <label htmlFor="offer-link">{t('form.label_offer_link')}</label>
           <input
             type="url" id="offer-link"
             value={offerLink} onChange={(e) => setOfferLink(e.target.value)}
@@ -220,18 +207,18 @@ export default function Modifyapplication({ candidature, onSuccess }) {
 
       {/* ── SECTION : Contact RH ──────────────────────────── */}
       <div className="form-section">
-        <p className="form-section-title">Contact RH</p>
+        <p className="form-section-title">{t('form.section_contact')}</p>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="contact">Personne HR</label>
+            <label htmlFor="contact">{t('form.label_contact')}</label>
             <input
               type="text" id="contact"
               value={contact} onChange={(e) => setContact(e.target.value)}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="roleContact">Son rôle</label>
+            <label htmlFor="roleContact">{t('form.label_role')}</label>
             <input
               type="text" id="roleContact"
               value={roleContact} onChange={(e) => setRoleContact(e.target.value)}
@@ -240,7 +227,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="email">Adresse mail</label>
+          <label htmlFor="email">{t('form.label_email')}</label>
           <input
             type="email" id="email"
             value={email} onChange={(e) => setEmail(e.target.value)}
@@ -252,20 +239,20 @@ export default function Modifyapplication({ candidature, onSuccess }) {
 
       {/* ── SECTION : Suivi ───────────────────────────────── */}
       <div className="form-section">
-        <p className="form-section-title">Suivi</p>
+        <p className="form-section-title">{t('form.section_tracking')}</p>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="nextAction">Prochaine action</label>
+            <label htmlFor="nextAction">{t('form.label_next_action')}</label>
             <select id="nextAction" value={nextAction} onChange={(e) => setNextAction(e.target.value)}>
-              <option value="NONE">Aucune</option>
-              <option value="SEND_APPLICATION">Envoyer la candidature</option>
-              <option value="TO_FOLLOW_UP">Relancer</option>
-              <option value="TO_PREPARE_INTERVIEW">Préparer l'entretien</option>
+              <option value="NONE">{t('form.next_action_none')}</option>
+              <option value="SEND_APPLICATION">{t('form.next_action_send')}</option>
+              <option value="TO_FOLLOW_UP">{t('form.next_action_follow_up')}</option>
+              <option value="TO_PREPARE_INTERVIEW">{t('form.next_action_prepare_interview')}</option>
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="nextActionDate">Échéance</label>
+            <label htmlFor="nextActionDate">{t('form.label_deadline')}</label>
             <input
               type="date" id="nextActionDate"
               value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)}
@@ -274,7 +261,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="notes">Notes</label>
+          <label htmlFor="notes">{t('form.label_notes')}</label>
           <textarea
             id="notes"
             value={notes} onChange={(e) => setNotes(e.target.value)}
@@ -286,12 +273,12 @@ export default function Modifyapplication({ candidature, onSuccess }) {
 
       {/* ── SECTION : Documents ───────────────────────────── */}
       <div className="form-section">
-        <p className="form-section-title">Documents</p>
-        <p className="form-files-note">Les fichiers existants sont conservés si vous n'en uploadez pas de nouveaux.</p>
+        <p className="form-section-title">{t('form.section_documents')}</p>
+        <p className="form-files-note">{t('modify_application.files_note')}</p>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="cv">CV (PDF, DOCX…)</label>
+            <label htmlFor="cv">{t('modify_application.label_cv')}</label>
             <input
               type="file" id="cv"
               accept=".pdf,.doc,.docx"
@@ -299,7 +286,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="coverLetter">Lettre de motivation</label>
+            <label htmlFor="coverLetter">{t('form.label_cover_letter')}</label>
             <input
               type="file" id="coverLetter"
               accept=".pdf,.doc,.docx"
@@ -311,7 +298,7 @@ export default function Modifyapplication({ candidature, onSuccess }) {
 
       {/* ── BOUTON ────────────────────────────────────────── */}
       <button type="button" onClick={handleModify} disabled={isSubmitting}>
-        {isSubmitting ? 'Sauvegarde en cours…' : 'Sauvegarder les modifications'}
+        {isSubmitting ? t('modify_application.submit_loading') : t('modify_application.submit')}
       </button>
     </div>
   );

@@ -55,17 +55,27 @@ def register_user(request):
     data = request.data
     
     try:
-        # 1. Vérification si l'utilisateur existe déjà
-        if User.objects.filter(username=data['username']).exists():
+        if not data.get('email'):
             return Response(
-                {'detail': 'Ce nom d\'utilisateur est déjà pris.'}, 
+                {'detail': 'L\'adresse email est obligatoire.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        # 2. Création de l'utilisateur
+
+        if User.objects.filter(username=data['username']).exists():
+            return Response(
+                {'detail': 'Ce nom d\'utilisateur est déjà pris.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if User.objects.filter(email=data['email']).exists():
+            return Response(
+                {'detail': 'Cette adresse email est déjà utilisée.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         user = User.objects.create_user(
             username=data['username'],
-            email=data.get('email', ''), # .get pour éviter l'erreur si l'email est vide
+            email=data['email'],
             password=data['password']
         )
         

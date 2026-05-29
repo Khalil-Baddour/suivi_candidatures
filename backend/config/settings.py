@@ -159,8 +159,12 @@ DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
 }
 DJANGO_REST_PASSWORDRESET_TOKEN_EXPIRY_TIME = 0.5  # Durée de validité du token (en heures) :  0.5 => 30 minutes
 
+AUTHENTICATION_BACKENDS = [
+    'applications.backends.EmailBackend',
+]
+
 SIMPLE_JWT = {
-    "TOKEN_OBTAIN_SERIALIZER": "applications.serializers.CustomTokenObtainPairSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "applications.serializers.EmailTokenObtainPairSerializer",
 }
 
 # Autorise ton frontend React (souvent sur le port 3000 ou 5173)

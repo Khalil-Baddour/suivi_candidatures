@@ -33,10 +33,13 @@ class CitySerializer(serializers.ModelSerializer):
         fields = '__all__' #renvoi tous les champs de la table  City
 
  
-# Ajouter le username dans le token JWT
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+# Authentification par email — le champ du formulaire est "email" (pas "username")
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token["username"] = user.username
+        token["email"] = user.email
         return token

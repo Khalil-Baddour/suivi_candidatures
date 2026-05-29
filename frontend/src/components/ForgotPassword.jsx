@@ -1,14 +1,15 @@
 import { useState } from "react";
-
+import { useLanguage } from "../context/LanguageContext";
 
 export default function ForgotPassword({ onBack }) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);  // Affiche le message AVANT la requête
+    setSent(true);
     setLoading(true);
 
     try {
@@ -30,14 +31,10 @@ export default function ForgotPassword({ onBack }) {
   if (sent) return (
     <div className="login-container">
       <div className="login-form">
-        <h2>Email envoyé ✓</h2>
-        <p className="success-message">
-          Si cet email existe, un lien vous
-          a été envoyé. Voir votre boite mails.
-        </p>
-        <button className="btn-link"
-          onClick={onBack}>
-          Retour à la connexion
+        <h2>{t('forgot_password.sent_title')}</h2>
+        <p className="success-message">{t('forgot_password.sent_message')}</p>
+        <button className="btn-link" onClick={onBack}>
+          {t('forgot_password.back_to_login')}
         </button>
       </div>
     </div>
@@ -45,10 +42,9 @@ export default function ForgotPassword({ onBack }) {
 
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit}
-            className="login-form">
-        <h2>Récupération</h2>
-        <p>Saisissez votre email.</p>
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2>{t('forgot_password.form_title')}</h2>
+        <p>{t('forgot_password.form_subtitle')}</p>
         <input type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -56,12 +52,12 @@ export default function ForgotPassword({ onBack }) {
         <button type="submit"
           className="btn-login"
           disabled={loading}>
-          {loading ? "Envoi..." : "Envoyer"}
+          {loading ? t('forgot_password.submit_loading') : t('forgot_password.submit')}
         </button>
         <button type="button"
           className="btn-link"
           onClick={onBack}>
-          Retour à la connexion
+          {t('forgot_password.back_to_login')}
         </button>
       </form>
     </div>

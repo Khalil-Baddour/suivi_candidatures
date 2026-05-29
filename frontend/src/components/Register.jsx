@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import '../assets/styleAuth.css'
 
 const API_URL = import.meta.env.VITE_API_URL
 
-export default function Register({ onSwitch }) { 
+export default function Register({ onSwitch }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -16,14 +18,14 @@ export default function Register({ onSwitch }) {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // efface l'erreur dès que l'user retape
+    setError("");
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t('register.error_password_match'));
       return;
     }
 
@@ -31,7 +33,7 @@ export default function Register({ onSwitch }) {
     setError("");
 
     try {
-      const response = await fetch(`${API_URL}/register/`, {  
+      const response = await fetch(`${API_URL}/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -45,26 +47,23 @@ export default function Register({ onSwitch }) {
         setSuccess(true);
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || "Erreur lors de l'inscription, réessayez.");
+        setError(errorData.detail || t('register.error_register'));
       }
     } catch {
-      setError("Impossible de joindre le serveur. Réessayez.");
+      setError(t('common.error_server'));
     } finally {
       setLoading(false);
     }
   };
 
-  // Écran de succès
   if (success) return (
     <div className="login-container">
       <div className="login-form">
         <div className="auth-success-icon">✓</div>
-        <h2>Compte créé !</h2>
-        <p className="success-message">
-          Votre compte a bien été créé. Vous pouvez maintenant vous connecter.
-        </p>
+        <h2>{t('register.success_title')}</h2>
+        <p className="success-message">{t('register.success_message')}</p>
         <button className="btn-login" onClick={onSwitch}>
-          Se connecter
+          {t('register.login_link')}
         </button>
       </div>
     </div>
@@ -73,49 +72,48 @@ export default function Register({ onSwitch }) {
   return (
     <div className="login-container">
       <form onSubmit={handleRegister} className="login-form">
-        <h2>Créer un compte</h2>
+        <h2>{t('register.form_title')}</h2>
 
-        {/* Message d'erreur inline */}
         {error && <p className="error-message">{error}</p>}
 
         <input
           name="username"
           type="text"
-          placeholder="Nom d'utilisateur"
+          placeholder={t('register.username_placeholder')}
           onChange={handleChange}
           required
         />
         <input
           name="email"
           type="email"
-          placeholder="Adresse email"
+          placeholder={t('register.email_placeholder')}
           onChange={handleChange}
           required
         />
         <input
           name="password"
           type="password"
-          placeholder="Mot de passe"
+          placeholder={t('register.password_placeholder')}
           onChange={handleChange}
           required
         />
         <input
           name="confirmPassword"
           type="password"
-          placeholder="Confirmer le mot de passe"
+          placeholder={t('register.confirm_placeholder')}
           onChange={handleChange}
           required
         />
 
         <button type="submit" className="btn-login" disabled={loading}>
-          {loading ? "Inscription..." : "S'inscrire"}
+          {loading ? t('register.submit_loading') : t('register.submit')}
         </button>
 
         <div className="login-footer">
           <p>
-            Déjà un compte ?
+            {t('register.has_account')}
             <button type="button" className="btn-link" onClick={onSwitch}>
-              Se connecter
+              {t('register.login_link')}
             </button>
           </p>
         </div>

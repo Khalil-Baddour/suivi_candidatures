@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-
+import { useLanguage } from "../context/LanguageContext";
 import '../assets/styleAuth.css'
 
 
 export default function ResetPassword() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
@@ -22,7 +23,7 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t('reset_password.error_password_match'));
       return;
     }
     setLoading(true); setError("");
@@ -37,14 +38,13 @@ export default function ResetPassword() {
       );
       if (!res.ok) {
         const data = await res.json();
-        setError(data?.detail ||
-          "Lien invalide ou expiré.");
+        setError(data?.detail || t('reset_password.error_link_expired'));
         return;
       }
       setSuccess(true);
       setTimeout(() => navigate("/"), 3000);
     } catch {
-      setError("Erreur réseau, réessayez.");
+      setError(t('reset_password.error_network'));
     } finally {
       setLoading(false);
     }
@@ -53,26 +53,23 @@ export default function ResetPassword() {
   if (success) return (
     <div className="login-container">
       <div className="login-form">
-        <div className="auth-success-icon">✓</div>  
-        <h2>Mot de passe mis à jour</h2>
-        <p className="success-message">
-          Votre mot de passe a bien été modifié. Vous allez être redirigé vers la connexion...
-        </p>
+        <div className="auth-success-icon">✓</div>
+        <h2>{t('reset_password.success_title')}</h2>
+        <p className="success-message">{t('reset_password.success_message')}</p>
       </div>
     </div>
   );
 
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit} className="login-form" autoComplete="off" >
-        <h2>Nouveau mot de passe</h2>
+      <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
+        <h2>{t('reset_password.form_title')}</h2>
 
-        {/* erreur inline */}
         {error && <p className="error-message">{error}</p>}
 
         <input
           type="password"
-          placeholder="Nouveau mot de passe"
+          placeholder={t('reset_password.new_password_placeholder')}
           value={password}
           onChange={(e) => { setPassword(e.target.value); setError(""); }}
           autoComplete="new-password"
@@ -81,14 +78,14 @@ export default function ResetPassword() {
         />
         <input
           type="password"
-          placeholder="Confirmer le mot de passe"
+          placeholder={t('reset_password.confirm_placeholder')}
           value={confirm}
           onChange={(e) => { setConfirm(e.target.value); setError(""); }}
           autoComplete="new-password"
           required
         />
         <button type="submit" className="btn-login" disabled={loading}>
-          {loading ? "Enregistrement..." : "Réinitialiser"}
+          {loading ? t('reset_password.submit_loading') : t('reset_password.submit')}
         </button>
       </form>
     </div>

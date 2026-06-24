@@ -12,7 +12,7 @@ class Command(BaseCommand):
             self.stdout.write("Cities already loaded, skipping.")
             return
 
-        csv_path = os.path.join(os.path.dirname(__file__), "../../../../assets/communes-france-2025.csv")
+        csv_path = os.path.join(os.path.dirname(__file__), "../../../assets/communes-france-2025.csv")
         csv_path = os.path.abspath(csv_path)
 
         if not os.path.exists(csv_path):

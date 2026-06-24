@@ -172,3 +172,9 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173"
 ).split(",")
+
+HOST_URL = os.getenv("HOST_URL", "http://localhost:8000")
+CSRF_TRUSTED_ORIGINS = [HOST_URL]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
